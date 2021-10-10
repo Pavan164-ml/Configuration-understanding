@@ -6,12 +6,12 @@ with open("README.md", "r", encoding="utf-8") as f:
 setup(
     name="src",
     version="0.0.1",
-    author="Pavan 164",
+    author="Pavan",
     description="A small package for ANN Implementation",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Pavan164-ml/Configuration-understanding.git",
-    author_email="pavanram2000@gmail.com",
+    author_email="pavanram2000e@gmail.com",
     packages=["src"],
     python_requires=">=3.7",
     install_requires=[
