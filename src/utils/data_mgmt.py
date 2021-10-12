@@ -13,4 +13,6 @@ def get_data(validation_datasize):
     # scale the test set as well
     X_test = X_test / 255.
 
+    ## We dont normalize ( /255 ) for y_test because it is the targete variable
+
     return (X_train, y_train), (X_valid, y_valid), (X_test, y_test)

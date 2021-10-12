@@ -1,10 +1,12 @@
 import os
+import pandas as pd
 from src.utils.common import read_config
 from src.utils.data_mgmt import get_data
 from src.utils.model import create_model, save_model
+from src.utils.save_plots import save_plot
 import argparse
 
-def training(config_path):
+def training(config_path):                          ## Here we are defining the training function which is called from main function
     config = read_config(config_path)
 
     validation_datasize = config["params"]["validation_datasize"]
@@ -20,9 +22,19 @@ def training(config_path):
     EPOCHS = config["params"]["epochs"]
     VALIDATION_SET = (X_valid, y_valid)
 
+
+    # So, now we need to train our model so that the parameters get tuned to provide 
+    # the correct outputs for a given input.
+    # We do this by feeding inputs at the input layer and then getting an output, 
+    # we then calculate the loss function using 
+    # the output and use backpropagation to tune the model parameters.
+    # This will fit the model parameters to the data.
+
+
     history = model.fit(X_train, y_train, epochs=EPOCHS,
                         validation_data=VALIDATION_SET)
 
+   
     artifacts_dir = config["artifacts"]["artifacts_dir"]
     model_dir = config["artifacts"]["model_dir"]
 
@@ -32,6 +44,14 @@ def training(config_path):
     model_name = config["artifacts"]["model_name"]
 
     save_model(model, model_name, model_dir_path)
+
+    plots_dir = config["artifacts"]["plots_dir"]
+    plots_name = config["artifacts"]["plots_name"]
+
+    save_plot(pd.DataFrame(history.history), plots_name , plots_dir)
+    print("*"*20)
+    print(history.history)
+    print("*"*20)
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
