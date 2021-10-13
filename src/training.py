@@ -1,9 +1,12 @@
 import os
+import tensorflow as tf
+import numpy as np
 import pandas as pd
 from src.utils.common import read_config
 from src.utils.data_mgmt import get_data
 from src.utils.model import create_model, save_model
 from src.utils.save_plots import save_plot
+from src.utils.model import get_log_path
 import argparse
 
 def training(config_path):                          ## Here we are defining the training function which is called from main function
@@ -30,9 +33,22 @@ def training(config_path):                          ## Here we are defining the 
     # the output and use backpropagation to tune the model parameters.
     # This will fit the model parameters to the data.
 
+    log_dir = get_log_path()
+
+    tensorboard_cb = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
+
+    ## Early early_stopping
+    early_stopping_cb = tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)
+
+    ## Check points saving dir
+    CKPT_path = config["artifacts"]["CKPT_path"]
+    checkpointing_cb = tf.keras.callbacks.ModelCheckpoint(CKPT_path, save_best_only=True)
+
+    CALLBACKS_LIST = [tensorboard_cb, early_stopping_cb, checkpointing_cb]
+
 
     history = model.fit(X_train, y_train, epochs=EPOCHS,
-                        validation_data=VALIDATION_SET)
+                        validation_data=VALIDATION_SET, callbacks=CALLBACKS_LIST)
 
    
     artifacts_dir = config["artifacts"]["artifacts_dir"]
@@ -49,14 +65,24 @@ def training(config_path):                          ## Here we are defining the 
     plots_name = config["artifacts"]["plots_name"]
 
     save_plot(pd.DataFrame(history.history), plots_name , plots_dir)
-    print("*"*20)
-    print(history.history)
-    print("*"*20)
+
+
+
+
+    file_writer = tf.summary.create_file_writer(logdir=log_dir)
+
+    with file_writer.as_default():
+        images = np.reshape(X_train[10:30], (-1, 28, 28, 1)) ### <<< 20, 28, 28, 1
+        tf.summary.image("20 handritten digit samples", images, max_outputs=25, step=0)
+
+
 
 if __name__ == '__main__':
-    args = argparse.ArgumentParser()
 
-    args.add_argument("--config", "-c", default="config.yaml")
+    # Creating a a container called args to store our arguements
+    args = argparse.ArgumentParser(description="It calls the training function with the configuration file as its arguement")
+
+    args.add_argument("--config", "-c", default="config.yaml")          ## Here --config and -c provides insight about the type of arguement the function accepts
 
     parsed_args = args.parse_args()
 

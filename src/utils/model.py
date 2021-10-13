@@ -40,3 +40,13 @@ def save_model(model, model_name, model_dir):
     unique_filename = get_unique_filename(model_name)
     path_to_model = os.path.join(model_dir, unique_filename)
     model.save(path_to_model)
+
+
+
+def get_log_path(log_dir="logs/fit"):
+    uniqueName = time.strftime("log_%Y_%m_%d_%H_%M_%S")
+    log_path = os.path.join(log_dir, uniqueName)
+    print(f"savings logs at: {log_path}")
+
+    return log_path
+
